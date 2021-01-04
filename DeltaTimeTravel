@@ -1,0 +1,53 @@
+
+#reading from delta lake from a given table version using Scala
+
+val df = spark.read
+  .format("delta")
+  .option("timestampAsOf", "2019-01-01")
+  .load("/path/to/my/table")
+
+#reading from delta lake from a given table version using Python
+
+df = spark.read \
+  .format("delta") \
+  .option("timestampAsOf", "2019-01-01") \
+  .load("/path/to/my/table")
+  
+
+#reading from delta lake from a given table version using SQL
+  
+SELECT count(*) FROM my_table TIMESTAMP AS OF "2019-01-01"
+SELECT count(*) FROM my_table TIMESTAMP AS OF date_sub(current_date(), 1)
+SELECT count(*) FROM my_table TIMESTAMP AS OF "2019-01-01 01:30:00.000"
+
+
+# using the version number in Python
+
+df = spark.read \
+  .format("delta") \
+  .option("versionAsOf", "5238") \
+  .load("/path/to/my/table")
+
+df = spark.read \
+  .format("delta") \
+  .load("/path/to/my/table@v5238")
+  
+  
+# using version number in SQL 
+
+SELECT count(*) FROM my_table VERSION AS OF 5238
+SELECT count(*) FROM my_table@v5238
+SELECT count(*) FROM delta.`/path/to/my/table@v5238`
+
+#Rolling Back 
+
+INSERT INTO my_table
+SELECT * FROM my_table TIMESTAMP AS OF date_sub(current_date(), 1)
+WHERE userId = 111
+
+# fix incorrect update 
+
+MERGE INTO my_table target
+USING my_table TIMESTAMP AS OF date_sub(current_date(), 1) source
+ON source.userId = target.userId
+WHEN MATCHED THEN UPDATE SET *
