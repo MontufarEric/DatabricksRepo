@@ -243,12 +243,143 @@ carsDF.show()
 
 // COMMAND ----------
 
-// Creating a column
+// Creating a column object
 val firstCol = carsDF.col("Name")
 
+//creating a new DF by selecting a column from the DF
+val carNamesDF = carsDF.seelct(firstCol)
+
+//The select statement is a projection of a DF to another Df with less data
+
 // COMMAND ----------
 
+carNamesDF.show()
+
+// COMMAND ----------
+
+// using the select statement
+// it is possibel to also use just col by importing the functions from spark sql
+// by importing implicits, it is also possible to just use the name to be auto-inferred as a col
+
+import org.apache.spark.sql.functions.{col, column}
+import spark.implicits._
+
+carsDF.select(
+  carsDF.col("Name"),
+  col("Acceleration"),
+  column("weight_in_lbs"),
+  'Year,   //Scala symbol, aouto-converted to col
+  $"Horsepower", //Fancier way of doing the last line
+  expr("origin") //Expression
+)
+
+// COMMAND ----------
+
+// We can also do select with the column names 
+carsDF.select("Name", "Year")
+
+// COMMAND ----------
+
+// MAGIC %md 
+// MAGIC Select is a narrow transformation. It generates a new dataframe where each partition comes from the same partition of the old data frame. 
+// MAGIC 
+// MAGIC 
+// MAGIC ## Expressions
+
+// COMMAND ----------
+
+  val simplestExpression = carsDF.col("Weight_in_lbs")
+  val weightInKgExpression = carsDF.col("Weight_in_lbs") / 2.2
+
+// COMMAND ----------
+
+  val carsWithWeightsDF = carsDF.select(
+    col("Name"),
+    col("Weight_in_lbs"),
+    weightInKgExpression.as("Weight_in_kg"),  // using as to rename the col
+    expr("Weight_in_lbs / 2.2").as("Weight_in_kg_2") // doing the same on the fly
+  )
+
+carsWithWeightsDF.show()
+
+// COMMAND ----------
+
+// selectExpr --> a more practical way od doing it
+  val carsWithSelectExprWeightsDF = carsDF.selectExpr(
+    "Name",
+    "Weight_in_lbs",
+    "Weight_in_lbs / 2.2"
+  )
 
 
 // COMMAND ----------
 
+// adding a column to a DF --> generates a new DF
+// withColumn(name, expression)
+  val carsWithKg3DF = carsDF.withColumn("Weight_in_kg_3", col("Weight_in_lbs") / 2.2)
+
+  // renaming a column
+  val carsWithColumnRenamed = carsDF.withColumnRenamed("Weight_in_lbs", "Weight in pounds")
+
+
+// COMMAND ----------
+
+  // careful with column names --> use backtext`` when using special characters like space
+  carsWithColumnRenamed.selectExpr("`Weight in pounds`")
+
+
+// COMMAND ----------
+
+  // remove a column
+  carsWithColumnRenamed.drop("Cylinders", "Displacement")
+
+// COMMAND ----------
+
+// MAGIC %md 
+// MAGIC ### Filtering
+
+// COMMAND ----------
+
+// filtering using not equal with filter and where 
+  val europeanCarsDF = carsDF.filter(col("Origin") =!= "USA")
+  val europeanCarsDF2 = carsDF.where(col("Origin") =!= "USA")
+  
+
+// COMMAND ----------
+
+// filtering with expression strings
+val americanCarsDF = carsDF.filter("Origin = 'USA'")
+
+
+// COMMAND ----------
+
+// chain filters in three different ways
+// tripple equals for equal to
+// and method is infix so it could be .and() or just and
+
+val americanPowerfulCarsDF = carsDF.filter(col("Origin") === "USA").filter(col("Horsepower") > 150)
+val americanPowerfulCarsDF2 = carsDF.filter(col("Origin") === "USA" and col("Horsepower") > 150)
+val americanPowerfulCarsDF3 = carsDF.filter("Origin = 'USA' and Horsepower > 150")
+
+
+// COMMAND ----------
+
+ // unioning = adding more rows
+val moreCarsDF = spark.read.option("inferSchema", "true").json("src/main/resources/data/more_cars.json")
+
+
+// COMMAND ----------
+
+// Appending the new dataframe to the old one
+val allCarsDF = carsDF.union(moreCarsDF) // works if the DFs have the same schema
+
+
+// COMMAND ----------
+
+// distinct values
+val allCountriesDF = carsDF.select("Origin").distinct()
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC # Exercises missing
