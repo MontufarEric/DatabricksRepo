@@ -5,7 +5,19 @@
 // MAGIC Distributed typed collections of JvM objects. Lowest level API in Spark. 
 // MAGIC They can be highly optimized. But they require you to know the spark internals very well and everything has to be manually tuned. 
 // MAGIC 
-// MAGIC Dataframes are auto-optimized by Spark. 
+// MAGIC - Dataframes are auto-optimized by Spark. 
+// MAGIC - RDDs and Datasets can use map, flatmap, reduce, take, ...
+// MAGIC - aggregations, groupby, sortby
+// MAGIC 
+// MAGIC RDDs  only --> 
+// MAGIC                -  partition control (repartition, coalesce, zipPartitions, mapPartitions)
+// MAGIC                -  operation control (checkpointing, isCheckpointed, localCheckpoint, chache)
+// MAGIC                -  storage control (cache, getStorageLevel, persist)
+// MAGIC                
+// MAGIC Datasets only -->
+// MAGIC                   - Select and join
+// MAGIC                   - Already optimized (planning)
+// MAGIC                                     
 
 // COMMAND ----------
 
@@ -48,7 +60,8 @@ val stocksDF = spark.read
     .option("inferSchema", "true")
     .csv("src/main/resources/data/stocks.csv")
 
-// COMMAND ----------
+// turn it into an Dataset and then to an RDD of StockValue
+// It is also possible to do it from DF to RDD directly but it will be an RDD[Row]
 
 import spark.implicits._
 val stocksDS = stocksDF.as[StockValue]
