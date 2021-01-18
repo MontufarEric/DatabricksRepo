@@ -22,7 +22,7 @@ import org.apache.spark.sql.functions._
 
 val carsDF = spark.read
     .option("inferSchema", "true")
-    .json("src/main/resources/data/cars.json")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/cars.json")
 
 // COMMAND ----------
 
@@ -39,6 +39,7 @@ val americanCarsDF = spark.sql(
     """
       |select Name from cars where Origin = 'USA'
     """.stripMargin)
+americanCarsDF.show()
 
 // COMMAND ----------
 
@@ -48,6 +49,7 @@ val americanCarsDF = spark.sql(
 spark.sql("create database rtjvm")
 spark.sql("use rtjvm")
 val databasesDF = spark.sql("show databases")
+databasesDF.show()
 
 // COMMAND ----------
 
