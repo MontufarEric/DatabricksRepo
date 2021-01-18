@@ -34,6 +34,9 @@ firstDF.take(10).foreach(println)
 // COMMAND ----------
 
  // definign the schema instead of infering it
+import org.apache.spark.sql.types.{NumericType, StringType, StructType, LongType, StructField, DoubleType}
+
+
   val carsSchema = StructType(Array(
     StructField("Name", StringType),
     StructField("Miles_per_Gallon", DoubleType),
@@ -51,9 +54,13 @@ firstDF.take(10).foreach(println)
   // read a DF with your schema
   val carsDFWithSchema = spark.read
     .format("json")
-    .schema(carsDFSchema)
+    .schema(carsSchema)
     .load("s3a://filestoragedatabricks/Spark-essentials-data/cars.json")
 
+
+// COMMAND ----------
+
+carsDFWithSchema.show()
 
 // COMMAND ----------
 
@@ -111,9 +118,9 @@ manualCarsDFWithImplicits.printSchema()
 // COMMAND ----------
 
 val cellPhones = Seq(
-  ('Samsung' 64, 2020, 5 ),
-  ('Apple', 32, 2020, 3),
-  ('Nokia', 8, 2015, 1)
+  ("Samsung", 64, 2020, 5 ),
+  ("Apple", 32, 2020, 3),
+  ("Nokia", 8, 2015, 1)
   )
 
 // COMMAND ----------
@@ -122,7 +129,7 @@ val cellPhoneDF = cellPhones.toDF("Company", "Memory", "Year", "Cameras")
 
 // COMMAND ----------
 
-cellPhonesDF.printSchema()
+cellPhoneDF.printSchema()
 
 // COMMAND ----------
 
@@ -247,7 +254,7 @@ carsDF.show()
 val firstCol = carsDF.col("Name")
 
 //creating a new DF by selecting a column from the DF
-val carNamesDF = carsDF.seelct(firstCol)
+val carNamesDF = carsDF.select(firstCol)
 
 //The select statement is a projection of a DF to another Df with less data
 
@@ -263,6 +270,7 @@ carNamesDF.show()
 
 import org.apache.spark.sql.functions.{col, column}
 import spark.implicits._
+import org.apache.spark.sql.functions._
 
 carsDF.select(
   carsDF.col("Name"),
@@ -271,12 +279,12 @@ carsDF.select(
   'Year,   //Scala symbol, aouto-converted to col
   $"Horsepower", //Fancier way of doing the last line
   expr("origin") //Expression
-)
+).show()
 
 // COMMAND ----------
 
 // We can also do select with the column names 
-carsDF.select("Name", "Year")
+carsDF.select("Name", "Year").show()
 
 // COMMAND ----------
 
@@ -314,24 +322,32 @@ carsWithWeightsDF.show()
 
 // COMMAND ----------
 
+carsWithSelectExprWeightsDF.show()
+
+// COMMAND ----------
+
 // adding a column to a DF --> generates a new DF
 // withColumn(name, expression)
-  val carsWithKg3DF = carsDF.withColumn("Weight_in_kg_3", col("Weight_in_lbs") / 2.2)
+val carsWithKg3DF = carsDF.withColumn("Weight_in_kg_3", col("Weight_in_lbs") / 2.2)
 
   // renaming a column
-  val carsWithColumnRenamed = carsDF.withColumnRenamed("Weight_in_lbs", "Weight in pounds")
+val carsWithColumnRenamed = carsDF.withColumnRenamed("Weight_in_lbs", "Weight in pounds")
+carsWithColumnRenamed.show
+
+// COMMAND ----------
+
 
 
 // COMMAND ----------
 
   // careful with column names --> use backtext`` when using special characters like space
-  carsWithColumnRenamed.selectExpr("`Weight in pounds`")
+  carsWithColumnRenamed.selectExpr("`Weight in pounds`").show
 
 
 // COMMAND ----------
 
   // remove a column
-  carsWithColumnRenamed.drop("Cylinders", "Displacement")
+  carsWithColumnRenamed.drop("Cylinders", "Displacement").show()
 
 // COMMAND ----------
 
@@ -343,7 +359,7 @@ carsWithWeightsDF.show()
 // filtering using not equal with filter and where 
   val europeanCarsDF = carsDF.filter(col("Origin") =!= "USA")
   val europeanCarsDF2 = carsDF.where(col("Origin") =!= "USA")
-  
+  europeanCarsDF.show()
 
 // COMMAND ----------
 
@@ -360,26 +376,54 @@ val americanCarsDF = carsDF.filter("Origin = 'USA'")
 val americanPowerfulCarsDF = carsDF.filter(col("Origin") === "USA").filter(col("Horsepower") > 150)
 val americanPowerfulCarsDF2 = carsDF.filter(col("Origin") === "USA" and col("Horsepower") > 150)
 val americanPowerfulCarsDF3 = carsDF.filter("Origin = 'USA' and Horsepower > 150")
-
+americanPowerfulCarsDF3.show
 
 // COMMAND ----------
 
  // unioning = adding more rows
-val moreCarsDF = spark.read.option("inferSchema", "true").json("src/main/resources/data/more_cars.json")
+val moreCarsDF = spark.read.option("inferSchema", "true").json("s3a://filestoragedatabricks/Spark-essentials-data/more_cars.json")
 
 
 // COMMAND ----------
 
 // Appending the new dataframe to the old one
 val allCarsDF = carsDF.union(moreCarsDF) // works if the DFs have the same schema
-
+allCarsDF.show
 
 // COMMAND ----------
 
 // distinct values
 val allCountriesDF = carsDF.select("Origin").distinct()
+allCountriesDF.show
 
 // COMMAND ----------
 
 // MAGIC %md
-// MAGIC # Exercises missing
+// MAGIC ### Practicing with another dataset
+
+// COMMAND ----------
+
+//Reading the Dataframe from our S3 bucket
+
+val moviesDF = spark.read
+    .option("inferSchema", "true")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/movies.json")
+
+// COMMAND ----------
+
+// selecting two columns from the DF
+
+moviesDF.select("","")
+
+// COMMAND ----------
+
+// Creating a new Column with total profit
+
+moviesDF2 = moviesDF.withColumn("total_profit", col("US_Gross") + col("Worldwide_gross") + )
+
+// COMMAND ----------
+
+// Filtering DF to see only comedies with 6+ in IMDB rating
+
+moviesDF3 = moviesDF.filter(col("genre") == "Comedy" and col("IMDB_reting") > 6)
+
