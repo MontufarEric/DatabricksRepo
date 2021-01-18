@@ -128,3 +128,12 @@ val coalescedRDD = repartitionedStocksRDD.coalesce(15) // does NOT involve shuff
   coalescedRDD.toDF.write
     .mode(SaveMode.Overwrite)
     .parquet("src/main/resources/data/stocks15")
+
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC ### Exercises pending
+
+// COMMAND ----------
+
