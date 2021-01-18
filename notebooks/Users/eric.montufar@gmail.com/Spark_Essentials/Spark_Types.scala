@@ -8,16 +8,18 @@
 
 // reading dataframes
 
+import org.apache.spark.sql.functions._
+
 val moviesDF = spark.read
     .option("inferSchema", "true")
-    .json("src/main/resources/data/movies.json")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/movies.json")
 
 
 // COMMAND ----------
 
 // adding a plain value to a DF (lit works for any type of value)
 
-moviesDF.select(col("Title"), lit(47).as("plain_value"))
+moviesDF.select(col("Title"), lit(47).as("plain_value")).show
 
 // COMMAND ----------
 
@@ -33,7 +35,7 @@ val preferredFilter = dramaFilter and goodRatingFilter
 // COMMAND ----------
 
 // applying the filter 
-moviesDF.select("Title").where(dramaFilter)
+moviesDF.select("Title").where(dramaFilter).show
 
 // COMMAND ----------
 
@@ -45,13 +47,13 @@ moviesDF.select("Title").where(dramaFilter)
 
 // filter on a boolean column that we just created 
 
-moviesWithGoodnessFlagsDF.where("good_movie") // where(col("good_movie") === "true")
+moviesWithGoodnessFlagsDF.where("good_movie").show // where(col("good_movie") === "true").show
 
 
 // COMMAND ----------
 
  // negations
-  moviesWithGoodnessFlagsDF.where(not(col("good_movie")))
+  moviesWithGoodnessFlagsDF.where(not(col("good_movie"))).show
 
 // COMMAND ----------
 
@@ -71,17 +73,17 @@ println(moviesDF.stat.corr("Rotten_Tomatoes_Rating", "IMDB_Rating") /* corr is a
 
 val carsDF = spark.read
     .option("inferSchema", "true")
-    .json("src/main/resources/data/cars.json")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/cars.json")
 
 // COMMAND ----------
 
 // capitalization: initcap, lower, upper
-carsDF.select(initcap(col("Name")))
+carsDF.select(initcap(col("Name"))).show
 
 // COMMAND ----------
 
 // contains
-carsDF.select("*").where(col("Name").contains("volkswagen"))
+carsDF.select("*").where(col("Name").contains("volkswagen")).show
 
 // COMMAND ----------
 
@@ -101,7 +103,7 @@ val vwDF = carsDF.select(
 vwDF.select(
     col("Name"),
     regexp_replace(col("Name"), regexString, "People's Car").as("regex_replace")
-  )
+  ).show
 
 // COMMAND ----------
 
@@ -118,7 +120,7 @@ vwDF.select(
 
 val moviesDF = spark.read
     .option("inferSchema", "true")
-    .json("src/main/resources/data/movies.json")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/movies.json")
 
 // COMMAND ----------
 
@@ -129,14 +131,16 @@ val moviesWithReleaseDates = moviesDF
 
 // COMMAND ----------
 
+spark.conf.set("spark.sql.legacy.timeParserPolicy","LEGACY")
+
 moviesWithReleaseDates
     .withColumn("Today", current_date()) // today
     .withColumn("Right_Now", current_timestamp()) // this second
-    .withColumn("Movie_Age", datediff(col("Today"), col("Actual_Release")) / 365) // date_add, date_sub
+    .withColumn("Movie_Age", datediff(col("Today"), col("Actual_Release")) / 365).show // date_add, date_sub
 
 // COMMAND ----------
 
-moviesWithReleaseDates.select("*").where(col("Actual_Release").isNull)
+moviesWithReleaseDates.select("*").where(col("Actual_Release").isNull).show
 
 // COMMAND ----------
 
@@ -151,22 +155,22 @@ moviesDF.select(
     col("Rotten_Tomatoes_Rating"),
     col("IMDB_Rating"),
     coalesce(col("Rotten_Tomatoes_Rating"), col("IMDB_Rating") * 10)
-  )
+  ).show
 
 // COMMAND ----------
 
 // checking for nulls
-moviesDF.select("*").where(col("Rotten_Tomatoes_Rating").isNull)
+moviesDF.select("*").where(col("Rotten_Tomatoes_Rating").isNull).show
 
 // COMMAND ----------
 
 // nulls when ordering
-  moviesDF.orderBy(col("IMDB_Rating").desc_nulls_last)
+  moviesDF.orderBy(col("IMDB_Rating").desc_nulls_last).show
 
 // COMMAND ----------
 
 // removing nulls
-moviesDF.select("Title", "IMDB_Rating").na.drop() // remove rows containing nulls
+moviesDF.select("Title", "IMDB_Rating").na.drop().show // remove rows containing nulls
 
 // COMMAND ----------
 
@@ -176,7 +180,7 @@ moviesDF.na.fill(Map(
     "IMDB_Rating" -> 0,
     "Rotten_Tomatoes_Rating" -> 10,
     "Director" -> "Unknown"
-  ))
+  )).show
 
 // COMMAND ----------
 
