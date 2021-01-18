@@ -151,14 +151,27 @@ aggregationsByDirectorDF.show
 
 val guitarsDF = spark.read
     .option("inferSchema", "true")
-    .json("src/main/resources/data/guitars.json")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/guitars.json")
+
+guitarsDF.show
 
 // COMMAND ----------
 
 // Reading DF2
 val bandsDF = spark.read
     .option("inferSchema", "true")
-    .json("src/main/resources/data/bands.json")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/bands.json")
+
+bandsDF.show
+
+// COMMAND ----------
+
+// Reading DF2
+val guitaristsDF = spark.read
+    .option("inferSchema", "true")
+    .json("s3a://filestoragedatabricks/Spark-essentials-data/guitarPlayers.json")
+
+guitaristsDF.show
 
 // COMMAND ----------
 
@@ -173,17 +186,17 @@ val guitaristsBandsDF = guitaristsDF.join(bandsDF, joinCondition, "inner")
 // outer joins
 // left outer = everything in the inner join + all the rows in the LEFT table, with nulls in where the data is missing
 
-guitaristsDF.join(bandsDF, joinCondition, "left_outer")
+guitaristsDF.join(bandsDF, joinCondition, "left_outer").show
 
 // COMMAND ----------
 
 // right outer = everything in the inner join + all the rows in the RIGHT table, with nulls in where the data is missing
-guitaristsDF.join(bandsDF, joinCondition, "right_outer")
+guitaristsDF.join(bandsDF, joinCondition, "right_outer").show()
 
 // COMMAND ----------
 
 // outer join = everything in the inner join + all the rows in BOTH tables, with nulls in where the data is missing
-guitaristsDF.join(bandsDF, joinCondition, "outer")
+guitaristsDF.join(bandsDF, joinCondition, "outer").show()
 
 // COMMAND ----------
 
@@ -191,12 +204,12 @@ guitaristsDF.join(bandsDF, joinCondition, "outer")
 // like a fancy filtering 
 
 
-guitaristsDF.join(bandsDF, joinCondition, "left_semi")
+guitaristsDF.join(bandsDF, joinCondition, "left_semi").show()
 
 // COMMAND ----------
 
 // anti-joins = everything in the left DF for which there is NO row in the right DF satisfying the condition
-guitaristsDF.join(bandsDF, joinCondition, "left_anti")
+guitaristsDF.join(bandsDF, joinCondition, "left_anti").show
 
 // COMMAND ----------
 
@@ -204,21 +217,25 @@ guitaristsDF.join(bandsDF, joinCondition, "left_anti")
 // guitaristsBandsDF.select("id", "band").show // this crashes
 
 // option 1 - rename the column on which we are joining
-guitaristsDF.join(bandsDF.withColumnRenamed("id", "band"), "band")
+guitaristsDF.join(bandsDF.withColumnRenamed("id", "band"), "band").show
 
 // COMMAND ----------
 
   // option 2 - drop the dupe column
-  guitaristsBandsDF.drop(bandsDF.col("id"))
+  guitaristsBandsDF.drop(bandsDF.col("id")).show
 
 // COMMAND ----------
 
 // option 3 - rename the offending column and keep the data
 val bandsModDF = bandsDF.withColumnRenamed("id", "bandId")
-guitaristsDF.join(bandsModDF, guitaristsDF.col("band") === bandsModDF.col("bandId"))
+guitaristsDF.join(bandsModDF, guitaristsDF.col("band") === bandsModDF.col("bandId")).show
 
 
 // COMMAND ----------
 
 // using complex types
-guitaristsDF.join(guitarsDF.withColumnRenamed("id", "guitarId"), expr("array_contains(guitars, guitarId)"))
+guitaristsDF.join(guitarsDF.withColumnRenamed("id", "guitarId"), expr("array_contains(guitars, guitarId)")).show
+
+
+// COMMAND ----------
+
