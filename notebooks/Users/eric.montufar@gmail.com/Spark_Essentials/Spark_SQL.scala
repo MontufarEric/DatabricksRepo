@@ -103,11 +103,11 @@ val employeesDF2 = spark.read.table("employees")
 // COMMAND ----------
 
 // MAGIC %md
-// MAGIC ## Excersices missing
+// MAGIC ## Excercises missing
 
 // COMMAND ----------
 
-
+val hola = "holaholahola"
 
 // COMMAND ----------
 
