@@ -14,17 +14,19 @@ val moviesDF = spark.read
 
 // COMMAND ----------
 
- // counting in two different ways
+import org.apache.spark.sql.functions._
+
+// counting in two different ways
 val genresCountDF = moviesDF.select(count(col("Major_Genre"))) // all the values except null
 
 // with expr
-moviesDF.selectExpr("count(Major_Genre)")
+moviesDF.selectExpr("count(Major_Genre)").show()
 
 
 // COMMAND ----------
 
 // counting all
-moviesDF.select(count("*")) // count all the rows, and will INCLUDE nulls
+moviesDF.select(count("*"))show() // count all the rows, and will INCLUDE nulls
 
 // COMMAND ----------
 
@@ -33,26 +35,29 @@ moviesDF.select(countDistinct(col("Major_Genre"))).show()
 
 // COMMAND ----------
 
- // approximate count
-moviesDF.select(approx_count_distinct(col("Major_Genre")))
+ // approximate count for qick data analysis (for real big data) 
+// approx is part of spark.sql.functions
+
+import org.apache.spark.sql.functions._
+moviesDF.select(approx_count_distinct(col("Major_Genre"))).show
 
 // COMMAND ----------
 
 // min and max
 val minRatingDF = moviesDF.select(min(col("IMDB_Rating")))
-moviesDF.selectExpr("min(IMDB_Rating)")
+moviesDF.selectExpr("min(IMDB_Rating)").show
 
 // COMMAND ----------
 
  // sum
-moviesDF.select(sum(col("US_Gross")))
-moviesDF.selectExpr("sum(US_Gross)")
+moviesDF.select(sum(col("US_Gross"))).show
+moviesDF.selectExpr("sum(US_Gross)").show
 
 // COMMAND ----------
 
   // avg
-moviesDF.select(avg(col("Rotten_Tomatoes_Rating")))
-moviesDF.selectExpr("avg(Rotten_Tomatoes_Rating)")
+moviesDF.select(avg(col("Rotten_Tomatoes_Rating"))).show()
+moviesDF.selectExpr("avg(Rotten_Tomatoes_Rating)").show()
 
 // COMMAND ----------
 
@@ -60,7 +65,7 @@ moviesDF.selectExpr("avg(Rotten_Tomatoes_Rating)")
 moviesDF.select(
     mean(col("Rotten_Tomatoes_Rating")),
     stddev(col("Rotten_Tomatoes_Rating"))
-  )
+  ).show
 
 // COMMAND ----------
 
@@ -69,17 +74,25 @@ moviesDF.select(
 
 // COMMAND ----------
 
+// Group by count --> Relational Grouped dataset
+
 val countByGenreDF = moviesDF
     .groupBy(col("Major_Genre")) // includes null
     .count()  // select count(*) from moviesDF group by Major_Genre
+countByGenreDF.show
 
 // COMMAND ----------
+
+// Group by  avg
 
 val avgRatingByGenreDF = moviesDF
     .groupBy(col("Major_Genre"))
     .avg("IMDB_Rating")
+avgRatingByGenreDF.show
 
 // COMMAND ----------
+
+// Group by using agg --> custom aggregations  + Order by
 
 val aggregationsByGenreDF = moviesDF
     .groupBy(col("Major_Genre"))
@@ -88,3 +101,124 @@ val aggregationsByGenreDF = moviesDF
       avg("IMDB_Rating").as("Avg_Rating")
     )
     .orderBy(col("Avg_Rating"))
+
+aggregationsByGenreDF.show
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC ### Aggregations Practice
+
+// COMMAND ----------
+
+moviesDF.printSchema
+
+// COMMAND ----------
+
+val profitsDF = moviesDF.select(sum(col("Worldwide_Gross")))
+profitsDF.show()
+
+// COMMAND ----------
+
+moviesDF.select(countDistinct(col("Director"))).show()
+
+// COMMAND ----------
+
+moviesDF.select(
+    mean(col("US_Gross")),
+    stddev(col("US_Gross"))
+  ).show()
+
+// COMMAND ----------
+
+val aggregationsByDirectorDF = moviesDF
+    .groupBy(col("Director"))
+    .agg(
+      avg("US_Gross").as("avg_US_gross_revenue"),
+      avg("IMDB_Rating").as("Avg_Rating")
+    )
+    .orderBy(col("Director"))
+aggregationsByDirectorDF.show
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC # Dataframe Joins
+
+// COMMAND ----------
+
+// Reading DF1
+
+val guitarsDF = spark.read
+    .option("inferSchema", "true")
+    .json("src/main/resources/data/guitars.json")
+
+// COMMAND ----------
+
+// Reading DF2
+val bandsDF = spark.read
+    .option("inferSchema", "true")
+    .json("src/main/resources/data/bands.json")
+
+// COMMAND ----------
+
+// inner joins
+// here we perform a join based on a predefined condition
+
+val joinCondition = guitaristsDF.col("band") === bandsDF.col("id")
+val guitaristsBandsDF = guitaristsDF.join(bandsDF, joinCondition, "inner")
+
+// COMMAND ----------
+
+// outer joins
+// left outer = everything in the inner join + all the rows in the LEFT table, with nulls in where the data is missing
+
+guitaristsDF.join(bandsDF, joinCondition, "left_outer")
+
+// COMMAND ----------
+
+// right outer = everything in the inner join + all the rows in the RIGHT table, with nulls in where the data is missing
+guitaristsDF.join(bandsDF, joinCondition, "right_outer")
+
+// COMMAND ----------
+
+// outer join = everything in the inner join + all the rows in BOTH tables, with nulls in where the data is missing
+guitaristsDF.join(bandsDF, joinCondition, "outer")
+
+// COMMAND ----------
+
+// semi-joins = everything in the left DF for which there is a row in the right DF satisfying the condition
+// like a fancy filtering 
+
+
+guitaristsDF.join(bandsDF, joinCondition, "left_semi")
+
+// COMMAND ----------
+
+// anti-joins = everything in the left DF for which there is NO row in the right DF satisfying the condition
+guitaristsDF.join(bandsDF, joinCondition, "left_anti")
+
+// COMMAND ----------
+
+// things to bear in mind to avoid duplicate columns while joining
+// guitaristsBandsDF.select("id", "band").show // this crashes
+
+// option 1 - rename the column on which we are joining
+guitaristsDF.join(bandsDF.withColumnRenamed("id", "band"), "band")
+
+// COMMAND ----------
+
+  // option 2 - drop the dupe column
+  guitaristsBandsDF.drop(bandsDF.col("id"))
+
+// COMMAND ----------
+
+// option 3 - rename the offending column and keep the data
+val bandsModDF = bandsDF.withColumnRenamed("id", "bandId")
+guitaristsDF.join(bandsModDF, guitaristsDF.col("band") === bandsModDF.col("bandId"))
+
+
+// COMMAND ----------
+
+// using complex types
+guitaristsDF.join(guitarsDF.withColumnRenamed("id", "guitarId"), expr("array_contains(guitars, guitarId)"))
