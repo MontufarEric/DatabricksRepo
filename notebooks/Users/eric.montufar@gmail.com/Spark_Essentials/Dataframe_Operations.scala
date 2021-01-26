@@ -253,10 +253,14 @@ val data = Seq(("James, A, Smith","2018","M",3000),
     ("Jen,Mary,Brown","2010","",-1)
   )
 
-  import spark.sqlContext.implicits._
-  val df = data.toDF("name","dob_year","gender","salary")
-  df.printSchema()
-  df.show(false)
+// COMMAND ----------
+
+// collection of tuples into dataframe 
+
+import spark.sqlContext.implicits._
+val df = data.toDF("name","dob_year","gender","salary")
+df.printSchema()
+df.show(false)
 
 // COMMAND ----------
 
@@ -270,7 +274,8 @@ val data = Seq(("James, A, Smith","2018","M",3000),
 
 // COMMAND ----------
 
-
+// showing dataframe with new columns 
+df2.show()
 
 // COMMAND ----------
 
