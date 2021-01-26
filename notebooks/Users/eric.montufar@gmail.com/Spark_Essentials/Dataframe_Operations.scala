@@ -239,3 +239,9 @@ guitaristsDF.join(guitarsDF.withColumnRenamed("id", "guitarId"), expr("array_con
 
 // COMMAND ----------
 
+// splitting a column into many
+
+ val df2 = df.select(split(col("name"),",").getItem(0).as("FirstName"),
+    split(col("name"),",").getItem(1).as("MiddleName"),
+    split(col("name"),",").getItem(2).as("LastName"))
+    .drop("name")
