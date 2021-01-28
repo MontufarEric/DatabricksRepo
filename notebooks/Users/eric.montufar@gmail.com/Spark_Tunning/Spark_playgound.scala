@@ -27,3 +27,28 @@ val sum = joined.selectExpr("sum(id)")
 // COMMAND ----------
 
 sum.explain()
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC ### pivoting a table 
+
+// COMMAND ----------
+
+val flights = sqlContext
+  .read
+  .format("csv")
+  .options(Map("inferSchema" -> "true", "header" -> "true"))
+  .load("flights.csv")
+
+flights
+  .groupBy($"origin", $"dest", $"carrier")
+  .pivot("hour")
+  .agg(avg($"arr_delay"))
+
+// COMMAND ----------
+
+
+
+// COMMAND ----------
+
