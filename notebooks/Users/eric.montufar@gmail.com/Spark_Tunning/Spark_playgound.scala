@@ -48,7 +48,18 @@ flights
 
 // COMMAND ----------
 
-
+// MAGIC %sql
+// MAGIC CREATE TEMPORARY VIEW flights 
+// MAGIC USING csv 
+// MAGIC OPTIONS (header 'true', path 'flights.csv', inferSchema 'true') ;
+// MAGIC 
+// MAGIC  SELECT * FROM (
+// MAGIC    SELECT origin, dest, carrier, arr_delay, hour FROM flights
+// MAGIC  ) PIVOT (
+// MAGIC    avg(arr_delay)
+// MAGIC    FOR hour IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+// MAGIC                 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)
+// MAGIC  );
 
 // COMMAND ----------
 
