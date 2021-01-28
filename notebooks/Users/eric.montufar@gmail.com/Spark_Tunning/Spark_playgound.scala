@@ -99,3 +99,27 @@ flights.count()
 2013,1,1,557,600,-3,709,723,-14,"EV",5708,"N829AS","LGA","IAD",53,229,6,0,2013-01-01 06:00:00
 2013,1,1,557,600,-3,838,846,-8,"B6",79,"N593JB","JFK","MCO",140,944,6,0,2013-01-01 06:00:00
 2013,1,1,558,600,-2,753,745,8,"AA",301,"N3ALAA","LGA","ORD",138,733,6,0,2013-01-01 06:00:00
+
+
+// COMMAND ----------
+
+class simpleCSVHeader(header: Array[String] extends Serializable) {
+  val index = header.zipWithIndex.toMap
+  def apply(array: Array[String],key: String) : String = array(index(key))
+}
+
+// COMMAND ----------
+
+val csv = sc.textFile(""s3a://filestoragedatabricks/Iris.csv"")
+val data = csv.map(line => line.split(",").map(elem => elem.trim))
+
+// COMMAND ----------
+
+val header = 
+
+// COMMAND ----------
+
+
+
+// COMMAND ----------
+
