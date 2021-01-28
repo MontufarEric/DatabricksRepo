@@ -63,6 +63,30 @@ flights
 
 // COMMAND ----------
 
+// python
+from pyspark.sql.functions import avg
+
+flights = (sqlContext
+    .read
+    .format("csv")
+    .options(inferSchema="true", header="true")
+    .load("flights.csv")
+    .na.drop())
+
+flights.registerTempTable("flights")
+sqlContext.cacheTable("flights")
+
+gexprs = ("origin", "dest", "carrier")
+aggexpr = avg("arr_delay")
+
+flights.count()
+## 336776
+
+%timeit -n10 flights.groupBy(*gexprs ).pivot("hour").agg(aggexpr).count()
+## 10 loops, best of 3: 1.03 s per loop
+
+// COMMAND ----------
+
 // sample data 
 "year","month","day","dep_time","sched_dep_time","dep_delay","arr_time","sched_arr_time","arr_delay","carrier","flight","tailnum","origin","dest","air_time","distance","hour","minute","time_hour"
 2013,1,1,517,515,2,830,819,11,"UA",1545,"N14228","EWR","IAH",227,1400,5,15,2013-01-01 05:00:00
