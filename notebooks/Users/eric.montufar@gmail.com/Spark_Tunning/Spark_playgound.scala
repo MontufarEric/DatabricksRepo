@@ -103,19 +103,16 @@ flights.count()
 
 // COMMAND ----------
 
-class simpleCSVHeader(header: Array[String] extends Serializable) {
-  val index = header.zipWithIndex.toMap
-  def apply(array: Array[String],key: String) : String = array(index(key))
-}
+val csv = sc.textFile("s3a://filestoragedatabricks/Iris.csv")
+
 
 // COMMAND ----------
 
-val csv = sc.textFile(""s3a://filestoragedatabricks/Iris.csv"")
 val data = csv.map(line => line.split(",").map(elem => elem.trim))
 
 // COMMAND ----------
 
-val header = 
+data.take(1)(0)
 
 // COMMAND ----------
 
