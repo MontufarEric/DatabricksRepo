@@ -149,3 +149,47 @@ numbersDf6.rdd.partitions.size // => 6
 
 // COMMAND ----------
 
+// MAGIC %md
+// MAGIC ### We can also repartition by the values of a column
+
+// COMMAND ----------
+
+val people = List(
+  (10, "blue"),
+  (13, "red"),
+  (15, "blue"),
+  (99, "red"),
+  (67, "blue")
+)
+val peopleDf = people.toDF("age", "color")
+
+// COMMAND ----------
+
+//200 repartitions by default if the data is small = a lot of empty partitions
+colorDf = peopleDf.repartition($"color")
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC ### Coalesce
+
+// COMMAND ----------
+
+val x = (1 to 10).toList
+val numbersDf = x.toDF(“number”)
+
+// COMMAND ----------
+
+val numbersDf2 = numbersDf.coalesce(2)
+numbersDf2.rdd.partitions.size
+
+// COMMAND ----------
+
+numbersDf.write.csv("S3.....")
+
+// COMMAND ----------
+
+// cannot increase the # of partitions 
+
+val numbersDf3 = numbersDf.coalesce(6)
+numbersDf3.rdd.partitions.size
