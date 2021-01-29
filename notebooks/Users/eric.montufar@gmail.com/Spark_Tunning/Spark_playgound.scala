@@ -116,7 +116,7 @@ data.take(1)(0)
 
 // COMMAND ----------
 
-
+data.take(2)(0)
 
 // COMMAND ----------
 
