@@ -120,3 +120,32 @@ data.take(2)(0)
 
 // COMMAND ----------
 
+// MAGIC %md
+// MAGIC ### Repartition
+
+// COMMAND ----------
+
+val x = (1 to 10).toList
+val numbersDf = x.toDF(“number”)
+
+// COMMAND ----------
+
+//printing the number of partitions
+numbersDf.rdd.partitions.size 
+
+// COMMAND ----------
+
+numbersDf.write.csv("S3.....")
+
+// COMMAND ----------
+
+val numbersDf2 = numbersDf.repartition(2)
+numbersDf2.rdd.partitions.size // => 2
+
+// COMMAND ----------
+
+val numbersDf6 = numbersDf.repartition(6)
+numbersDf6.rdd.partitions.size // => 6
+
+// COMMAND ----------
+
