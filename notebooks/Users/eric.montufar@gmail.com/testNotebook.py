@@ -146,6 +146,11 @@ dbutils.fs.ls("s3a://filestoragedatabricks")
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC select * from dev_db.processing_log
+
+# COMMAND ----------
+
 # MAGIC %sql 
 # MAGIC select * from dev_db.processing_log2 
 
@@ -241,17 +246,80 @@ def comparatorValue2(a, b, d):
 # MAGIC drop table if exists dev_db.months;
 # MAGIC create table dev_db.months
 # MAGIC (
-# MAGIC file_id              string     comment "none",
+# MAGIC row_id               int     comment "none",
 # MAGIC month                string     comment "none",
-# MAGIC col1                 int        comment "none"
+# MAGIC ammount                 int        comment "none"
+# MAGIC )
+# MAGIC using delta
+# MAGIC options(path="s3a://filestoragedatabricks/months-dev/")
+# MAGIC partitioned by (row_id)
+
+# COMMAND ----------
+
+spark.sql("""INSERT INTO dev_db.months  VALUES (1, 'Jan', 10), (2, "Feb", 12),
+(3, "Jan", 14), 
+(4, "Jun", 15),
+(5, "Jul", 22),
+(6, "Jun", 24),
+(7, "Aug", 25),
+(8, "Oct", 25);""")
+
+# COMMAND ----------
+
+# MAGIC %sql 
+# MAGIC select * from dev_db.months
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select row_id  
+# MAGIC   ,(case when month = "Jan" then 1  else 0 end)  AS  Jan
+# MAGIC   ,(case when month = "Feb" then 1  else 0 end)  AS  Feb 
+# MAGIC   ,(case when month = "Mar" then 1  else 0 end)  AS  Mar
+# MAGIC   ,(case when month = "Apr" then 1  else 0 end)  AS  Apr
+# MAGIC   ,(case when month = "May" then 1  else 0 end)  AS  May
+# MAGIC   ,(case when month = "Jun" then 1  else 0 end)  AS  Jun
+# MAGIC   ,(case when month = "Jul" then 1  else 0 end)  AS  Jul
+# MAGIC   ,(case when month = "Aug" then 1  else 0 end)  AS  Aug
+# MAGIC   ,(case when month = "Sep" then 1  else 0 end)  AS  Sep
+# MAGIC   ,(case when month = "Oct" then 1  else 0 end)  AS  Oct
+# MAGIC   ,(case when month = "Nov" then 1  else 0 end)  AS  Nov
+# MAGIC   ,(case when month = "Dec" then 1  else 0 end)  AS  Dec
+# MAGIC from dev_db.months
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select row_id
+# MAGIC   ,coalesce(sum(case when month = "Jan"  then ammount end), 0) Jan
+# MAGIC   ,coalesce(sum(case when month = "Feb"  then ammount end), 0) Feb 
+# MAGIC   ,coalesce(sum(case when month = "Mar"  then ammount end), 0) Mar
+# MAGIC   ,coalesce(sum(case when month = "Apr"  then ammount end), 0) Apr
+# MAGIC   ,coalesce(sum(case when month = "May"  then ammount end), 0) May
+# MAGIC   ,coalesce(sum(case when month = "Jun"  then ammount end), 0) Jun
+# MAGIC   ,coalesce(sum(case when month = "Jul"  then ammount end), 0) Jul
+# MAGIC   ,coalesce(sum(case when month = "Aug"  then ammount end), 0) Aug
+# MAGIC   ,coalesce(sum(case when month = "Sep"  then ammount end), 0) Sep
+# MAGIC   ,coalesce(sum(case when month = "Oct"  then ammount end), 0) Oct
+# MAGIC   ,coalesce(sum(case when month = "Nov"  then ammount end), 0) Nov
+# MAGIC   ,coalesce(sum(case when month = "Dec"  then ammount end), 0) Dec
+# MAGIC from dev_db.months
+# MAGIC group by row_id, month
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC drop table if exists dev_db.processing_log2;
+# MAGIC create table dev_db.processing_log2
+# MAGIC (
+# MAGIC file_id                 string     comment "none",
+# MAGIC filename                string     comment "none",
+# MAGIC processing_timestamp    timestamp  comment "none",
+# MAGIC processing_status       string     comment "none"
 # MAGIC )
 # MAGIC using delta
 # MAGIC options(path="s3a://filestoragedatabricks/tables-dev/")
 # MAGIC partitioned by (file_id)
-
-# COMMAND ----------
-
-
 
 # COMMAND ----------
 
