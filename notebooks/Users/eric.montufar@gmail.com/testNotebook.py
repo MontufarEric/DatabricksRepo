@@ -237,6 +237,24 @@ def comparatorValue2(a, b, d):
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC drop table if exists dev_db.months;
+# MAGIC create table dev_db.months
+# MAGIC (
+# MAGIC file_id              string     comment "none",
+# MAGIC month                string     comment "none",
+# MAGIC col1                 int        comment "none"
+# MAGIC )
+# MAGIC using delta
+# MAGIC options(path="s3a://filestoragedatabricks/tables-dev/")
+# MAGIC partitioned by (file_id)
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
 
 
 # COMMAND ----------
