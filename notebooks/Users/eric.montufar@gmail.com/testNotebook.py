@@ -330,19 +330,28 @@ spark.sql("""INSERT INTO dev_db.months  VALUES (1, 'Jan', 10), (2, "Feb", 12),
 
 # COMMAND ----------
 
-
+# MAGIC %sql
+# MAGIC 
+# MAGIC Copy
+# MAGIC USE AdventureWorks2014 ;  
+# MAGIC GO  
+# MAGIC SELECT DaysToManufacture, AVG(StandardCost) AS AverageCost   
+# MAGIC FROM Production.Product  
+# MAGIC GROUP BY DaysToManufacture;  
 
 # COMMAND ----------
 
--- Pivot table with one row and five columns  
-SELECT 'AverageCost' AS Cost_Sorted_By_Production_Days,   
-[0], [1], [2], [3], [4]  
-FROM  
-(SELECT DaysToManufacture, StandardCost   
-    FROM Production.Product) AS SourceTable  
-PIVOT  
-(  
-AVG(StandardCost)  
-FOR DaysToManufacture IN ([0], [1], [2], [3], [4])  
-) AS PivotTable;  
-  
+# MAGIC %sql
+# MAGIC 
+# MAGIC -- Pivot table with one row and five columns  
+# MAGIC SELECT 'AverageCost' AS Cost_Sorted_By_Production_Days,   
+# MAGIC [0], [1], [2], [3], [4]  
+# MAGIC FROM  
+# MAGIC (SELECT DaysToManufacture, StandardCost   
+# MAGIC     FROM Production.Product) AS SourceTable  
+# MAGIC PIVOT  
+# MAGIC (  
+# MAGIC AVG(StandardCost)  
+# MAGIC FOR DaysToManufacture IN ([0], [1], [2], [3], [4])  
+# MAGIC ) AS PivotTable;  
+# MAGIC   
