@@ -213,7 +213,9 @@ data = [
 
 # COMMAND ----------
 
-
+# MAGIC %md
+# MAGIC 
+# MAGIC #### pivoting a tables with CASE WHEN statement
 
 # COMMAND ----------
 
@@ -323,7 +325,24 @@ spark.sql("""INSERT INTO dev_db.months  VALUES (1, 'Jan', 10), (2, "Feb", 12),
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC #### Pivoting with functions 
+
+# COMMAND ----------
+
 
 
 # COMMAND ----------
 
+-- Pivot table with one row and five columns  
+SELECT 'AverageCost' AS Cost_Sorted_By_Production_Days,   
+[0], [1], [2], [3], [4]  
+FROM  
+(SELECT DaysToManufacture, StandardCost   
+    FROM Production.Product) AS SourceTable  
+PIVOT  
+(  
+AVG(StandardCost)  
+FOR DaysToManufacture IN ([0], [1], [2], [3], [4])  
+) AS PivotTable;  
+  
