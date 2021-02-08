@@ -1,5 +1,7 @@
 # Databricks notebook source
-
+# MAGIC %md
+# MAGIC ## Python code challenges
+# MAGIC Solving hackerrank code challenges with python 
 
 # COMMAND ----------
 
