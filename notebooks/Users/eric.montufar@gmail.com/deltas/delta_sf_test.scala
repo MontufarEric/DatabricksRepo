@@ -15,14 +15,14 @@ val someDF = df1.union(df2)
 
 // COMMAND ----------
 
-someDF.write.format("delta").mode("overwrite").save("s3a://filestoragedatabricks/parquet_files/tables/seinfield_test_cdc_delta/bronze")
+someDF.write.format("delta").mode("overwrite").save("s3a://filestoragedatabricks/seinfield_test_cdc_delta/bronze")
 
 // COMMAND ----------
 
 import org.apache.spark.sql.functions.{col,split}
 
 //Read the table as a stream
-val bronzeData = spark.readStream.format("delta").load("s3a://filestoragedatabricks/parquet_files/tables/seinfield_test_cdc_delta/bronze")
+val bronzeData = spark.readStream.format("delta").load("s3a://filestoragedatabricks/seinfield_test_cdc_delta/bronze")
 
 //Perform name parsing
 val bronzeDataCleaned = bronzeData.withColumn("_tmp", split(col("name"), ",")).select(
@@ -32,12 +32,12 @@ val bronzeDataCleaned = bronzeData.withColumn("_tmp", split(col("name"), ",")).s
 
 //Write into Silver table
 bronzeDataCleaned.writeStream.format("delta")
-            .option("checkpointLocation","s3a://filestoragedatabricks/parquet_files/tables/check_point")
-            .start("s3a://filestoragedatabricks/parquet_files/tables/silver")
+            .option("checkpointLocation","s3a://filestoragedatabricks/check_point")
+            .start("s3a://filestoragedatabricks/silver")
 
 // COMMAND ----------
 
-val silverData = spark.read.format("delta").load("s3a://filestoragedatabricks/parquet_files/tables/silver")
+val silverData = spark.read.format("delta").load("s3a://filestoragedatabricks/silver")
 display(silverData)
 
 // COMMAND ----------
@@ -51,7 +51,7 @@ val moreDF = sc.parallelize(
 ).toDF("name", "state")
 
 
-moreDF.write.format("delta").mode("append").save("s3a://filestoragedatabricks/parquet_files/tables/seinfield_test_cdc_delta/bronze")
+moreDF.write.format("delta").mode("append").save("s3a://filestoragedatabricks/seinfield_test_cdc_delta/bronze")
 
 // COMMAND ----------
 
