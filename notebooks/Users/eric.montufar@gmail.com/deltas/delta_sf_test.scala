@@ -1,4 +1,9 @@
 // Databricks notebook source
+// MAGIC %md 
+// MAGIC ## cdc test using the data streamign approach for delta tables 
+
+// COMMAND ----------
+
 import spark.implicits._
 
 // COMMAND ----------
