@@ -129,3 +129,47 @@ if __name__ == '__main__':
     fptr.write(str(minimumCost) + '\n')
 
     fptr.close()
+
+
+# COMMAND ----------
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import udf
+from pyspark.sql.types import StringType
+import os
+
+def mask_func(colVal):
+    if len(colVal)==9:
+        charList=list(colVal)
+        charList[:5]='*'*5
+        return "".join(charList)
+    else:
+        return colVal
+
+
+
+
+# COMMAND ----------
+
+df=spark.read.csv('your_CSV' ,header=True)
+df.show(2)
+mask_func_udf = udf(mask_func, StringType())
+df_masked=df.withColumn("Column_masked",mask_func_udf(df["Columnr"]))
+df_masked=df_masked.drop("Column").withColumnRenamed("Column_masked","Column")
+print ("Masked Data: \n")
+df_masked.show(2)
+
+
+
+# COMMAND ----------
+
+def mask_email(email):
+    import re
+    return re.replace(r'\w+(?=.{0}@)', 'x', email)
+
+
+
+
+# COMMAND ----------
+
+spark.udf.register("mask_email", StringType())
