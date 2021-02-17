@@ -133,6 +133,17 @@ if __name__ == '__main__':
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ## Mask Functions Spark
+# MAGIC 
+# MAGIC UDFs to mask the first digits of the SSN and masking email address
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
@@ -145,8 +156,6 @@ def mask_func(colVal):
         return "".join(charList)
     else:
         return colVal
-
-
 
 
 # COMMAND ----------
