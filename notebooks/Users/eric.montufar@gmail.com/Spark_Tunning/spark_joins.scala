@@ -23,7 +23,10 @@ citiesDF.show()
 
 // COMMAND ----------
 
-
+peopleDF.join(
+  broadcast(citiesDF),
+  peopleDF("city") <=> citiesDF("city")
+).show()
 
 // COMMAND ----------
 
