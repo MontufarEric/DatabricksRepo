@@ -14,7 +14,12 @@ peopleDF.show()
 
 // COMMAND ----------
 
+val citiesDF = Seq(
+  ("medellin", "colombia", 2.5),
+  ("bangalore", "india", 12.3)
+).toDF("city", "country", "population")
 
+citiesDF.show()
 
 // COMMAND ----------
 
