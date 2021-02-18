@@ -10,13 +10,13 @@
 // COMMAND ----------
 
 def restock(itemcount: Seq[Int], target: Int): Int = {
-    var cont = 0
+    var count = 0
     for (e <- itemcount){
-        cont += e
-        if(cont >= target)
-          return math.abs(target- cont)
+        count += e
+        if(count >= target)
+          return math.abs(target- count)
     }
-    return math.abs(target - cont)  
+    return math.abs(target - count)  
 }
     
 
@@ -33,9 +33,35 @@ def comparatorValue(a: Seq[Int], b: Seq[Int], d: Int ){
         }
         if (f1.forall(x => {x == true})) c+=1 else c+=0 
     }
-    return c
+   println(c)
     
 }
+
+// COMMAND ----------
+
+import scala.collection.mutable.ListBuffer
+
+def comparatorValue1(a: Seq[Int], b: Seq[Int], d: Int ){
+    var count = 0
+    for (element <- a){
+        var list_1 = new ListBuffer[Boolean]()
+        b.foreach(e => if(math.abs(e - element) > d) list_1 += true else list_1 += false)
+        if (list_1.exists(_ == false)) count+=0 else count+=1
+    }
+    println(count) 
+}
+
+// COMMAND ----------
+
+
+
+// COMMAND ----------
+
+
+
+// COMMAND ----------
+
+
 
 // COMMAND ----------
 
