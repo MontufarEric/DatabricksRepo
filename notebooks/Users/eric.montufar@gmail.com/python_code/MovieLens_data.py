@@ -54,7 +54,10 @@ from pyspark.sql.functions import udf
 import pyspark.sql.functions as F
 
 def get_year(title):
-  return(title[-5:-1])
+  try:
+    return(int(title[-5:-1]))
+  except:
+    return(None)
 
 
 get_year_udf = udf(get_year)
@@ -77,9 +80,22 @@ ratings_agg.show()
 
 # COMMAND ----------
 
+# MAGIC %md 
+# MAGIC Here we evaluate the average rating by year to identify if there is a trend in the ratings either to decrease or increase over the years. Visually, it is not possible to appreaciate such trend, but it was possible to identify some outlayer values in the year column. 
+
+# COMMAND ----------
+
 joined_movies = movies.join(ratings_agg,"movieId")
+joined_movies.select("year",'avg_rating').groupBy("year").mean().orderBy("year").display()
 
+# COMMAND ----------
 
+# MAGIC %md 
+# MAGIC As mentioned before, the year column contains some outlayers and null values. Thus, here I aggregate the data counting the number of movies by year. By doing this, we can see that there are some movies with years from the early 1900s. 
+
+# COMMAND ----------
+
+joined_movies.select("year",'avg_rating').groupBy("year").count().orderBy("year").display()
 
 # COMMAND ----------
 
@@ -98,6 +114,19 @@ exploded_movies.groupBy("genres").count().display()
 
 rated_genres = exploded_movies.join(ratings,"movieId").select("genres","rating")
 rated_genres.groupBy("genres").mean().display()
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC By doing a visual analysis, it seems that the people rating the movies has no bias towards a particular genre. The distribution looks quite uniform, even though the sample is small. 
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
 
 
 # COMMAND ----------
