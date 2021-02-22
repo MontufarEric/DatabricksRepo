@@ -49,26 +49,55 @@ tags.show()
 
 # COMMAND ----------
 
+def return_age_bracket(age):
+  if (age <= 12):
+    return 'Under 12'
+  elif (age >= 13 and age <= 19):
+    return 'Between 13 and 19'
+  elif (age > 19 and age < 65):
+    return 'Between 19 and 65'
+  elif (age >= 65):
+    return 'Over 65'
+  else: return 'N/A'
+
+from pyspark.sql.functions import udf
+
+maturity_udf = udf(return_age_bracket)
+df = sqlContext.createDataFrame([{'name': 'Alice', 'age': 1}])
+df.withColumn("maturity", maturity_udf(df.age))
 
 
 # COMMAND ----------
 
+from pyspark.sql.functions import udf
+import pyspark.sql.functions as F
+
+def get_year(title):
+  return(title[-5:-1])
 
 
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
-
-
+get_year_udf = udf(get_year)
 
 # COMMAND ----------
 
+movies = movies.withColumn("year", get_year_udf(movies.title))
+movies.show()
+
+# COMMAND ----------
+
+from pyspark.sql.types import FloatType
+from pyspark.sql.functions import bround
+from pyspark.sql.functions import mean
+
+ratings_agg = ratings.groupBy("movieId").agg(mean("rating").alias("avg_rating"))
+ratings_agg = ratings_agg.withColumn("average_rating", ratings_agg.avg_rating.cast(FloatType())).drop("avg_rating").withColumnRenamed("average_rating", "avg_rating")
+ratings_agg = ratings_agg.select("movieId",bround("avg_rating",2).alias("avg_rating"))
+ratings_agg.show()
+
+# COMMAND ----------
+
+joined_movies = movies.join(ratings_agg,"movieId")
+joined_movies.show()
 
 
 # COMMAND ----------
