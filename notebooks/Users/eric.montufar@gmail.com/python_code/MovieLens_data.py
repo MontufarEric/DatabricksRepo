@@ -50,6 +50,12 @@ tags.show()
 
 # COMMAND ----------
 
+# MAGIC %md 
+# MAGIC 
+# MAGIC As we cans ee in the table previews, the year of the movie is embeded in the movie title. In order to extract this information, I created a User Defined Function(UDF) that takes the year when available, otherwise it returns null. 
+
+# COMMAND ----------
+
 from pyspark.sql.functions import udf
 import pyspark.sql.functions as F
 
@@ -69,6 +75,12 @@ movies.show()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC 
+# MAGIC As part of the analysis of this dataset, it would be useful to have the average rating for each movie. In the following cell of code, I aggregate over the ratings table to get the average rating for each movie ID. 
+
+# COMMAND ----------
+
 from pyspark.sql.types import FloatType
 from pyspark.sql.functions import bround
 from pyspark.sql.functions import mean
@@ -82,6 +94,8 @@ ratings_agg.show()
 
 # MAGIC %md 
 # MAGIC Here we evaluate the average rating by year to identify if there is a trend in the ratings either to decrease or increase over the years. Visually, it is not possible to appreaciate such trend, but it was possible to identify some outlayer values in the year column. 
+# MAGIC 
+# MAGIC To achieve this, it was necessary to join the aggregated ratings table with movies table that includes the year as a column. 
 
 # COMMAND ----------
 
@@ -123,11 +137,23 @@ rated_genres.groupBy("genres").mean().display()
 
 # COMMAND ----------
 
-
+# MAGIC %md
+# MAGIC Let's now proceed to see which movies are the ones with the best score and those ones with the worst score. For this purpose, I will take the top 10 elements from the joined table that includes the movie title and the average rating. 
 
 # COMMAND ----------
 
+from pyspark.sql.functions import desc
+joined_movies.select("title","avg_rating").orderBy(desc("avg_rating")).head(10)
 
+# COMMAND ----------
+
+# MAGIC %md 
+# MAGIC 
+# MAGIC Now I take the 10 movies with the lowest average rating to see the worst movies in our dataset. 
+
+# COMMAND ----------
+
+joined_movies.select("title","avg_rating").orderBy("avg_rating").head(10)
 
 # COMMAND ----------
 
