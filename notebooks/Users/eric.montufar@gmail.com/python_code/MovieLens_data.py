@@ -1,6 +1,7 @@
 # Databricks notebook source
 # MAGIC %pip install matplotlib
 # MAGIC %pip install seaborn 
+# MAGIC %pip install pandas 
 
 # COMMAND ----------
 
@@ -49,26 +50,6 @@ tags.show()
 
 # COMMAND ----------
 
-def return_age_bracket(age):
-  if (age <= 12):
-    return 'Under 12'
-  elif (age >= 13 and age <= 19):
-    return 'Between 13 and 19'
-  elif (age > 19 and age < 65):
-    return 'Between 19 and 65'
-  elif (age >= 65):
-    return 'Over 65'
-  else: return 'N/A'
-
-from pyspark.sql.functions import udf
-
-maturity_udf = udf(return_age_bracket)
-df = sqlContext.createDataFrame([{'name': 'Alice', 'age': 1}])
-df.withColumn("maturity", maturity_udf(df.age))
-
-
-# COMMAND ----------
-
 from pyspark.sql.functions import udf
 import pyspark.sql.functions as F
 
@@ -97,7 +78,26 @@ ratings_agg.show()
 # COMMAND ----------
 
 joined_movies = movies.join(ratings_agg,"movieId")
-joined_movies.show()
+
+
+
+# COMMAND ----------
+
+from pyspark.sql.functions import split,explode
+
+exploded_movies = movies.withColumn("genres", explode(split("genres","[|]")))
+exploded_movies.groupBy("genres").count().display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 
+# MAGIC Something worthy to analyze is to check wether the voters have a bias on a particular genre. This could be tested by taking the average rating by genre and see whether the rating distribution is uniform, that is, that there is no systematic bias towards a particular genre. 
+
+# COMMAND ----------
+
+rated_genres = exploded_movies.join(ratings,"movieId").select("genres","rating")
+rated_genres.groupBy("genres").mean().display()
 
 
 # COMMAND ----------
