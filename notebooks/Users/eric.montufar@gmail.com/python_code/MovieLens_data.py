@@ -146,3 +146,17 @@ joined_movies.select("title","avg_rating").orderBy("avg_rating").head(10)
 
 # COMMAND ----------
 
+# MAGIC %md 
+# MAGIC Exportind the processed dataframes as parquet files to the S3 bucket we used to read the files. As a further step, I will be connecting this tables to AWS Redshift for their analysis. 
+
+# COMMAND ----------
+
+joined_movies.write.format("parquet").mode("Overwrite").option("path","s3a://filestoragedatabricks/MovieLensData/joined_df").save()
+
+# COMMAND ----------
+
+
+exploded_movies.write.format("parquet").mode("Overwrite").option("path","s3a://filestoragedatabricks/MovieLensData/exploded_df").save()
+
+# COMMAND ----------
+
