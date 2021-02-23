@@ -1,10 +1,4 @@
 # Databricks notebook source
-# MAGIC %pip install matplotlib
-# MAGIC %pip install seaborn 
-# MAGIC %pip install pandas 
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ## MovieLens Data analysis 
 # MAGIC 
@@ -14,11 +8,6 @@
 
 # MAGIC %md
 # MAGIC First, we import the libraries that we are going to use for the data visualization. Then we load the data we just downloades from the MovieLens website. The files were uploaded to an S3 bucket and loaded from there. 
-
-# COMMAND ----------
-
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # COMMAND ----------
 
