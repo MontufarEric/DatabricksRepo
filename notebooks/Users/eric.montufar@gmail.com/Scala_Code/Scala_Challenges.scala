@@ -107,7 +107,8 @@ def main(args: Array[String]){
 
 // COMMAND ----------
 
-
+// MAGIC %md 
+// MAGIC ### Binary Search (Iterative)
 
 // COMMAND ----------
 
