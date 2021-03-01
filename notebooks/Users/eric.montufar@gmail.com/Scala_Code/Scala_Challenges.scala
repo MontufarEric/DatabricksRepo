@@ -53,7 +53,9 @@ def comparatorValue1(a: Seq[Int], b: Seq[Int], d: Int ){
 
 // COMMAND ----------
 
-
+// MAGIC %md 
+// MAGIC ### Binary Search 
+// MAGIC Code for implmenting the Bunary Search Algorithm in Scala 
 
 // COMMAND ----------
 
