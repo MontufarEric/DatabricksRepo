@@ -19,3 +19,9 @@
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC Select CountryName from Application.Countries 
+# MAGIC  
+# MAGIC Declare @val Varchar(MAX); 
+# MAGIC Select @val = COALESCE(@val + ', ' + CountryName, CountryName) 
+# MAGIC         From Application.Countries Select @val;
