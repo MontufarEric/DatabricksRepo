@@ -381,3 +381,12 @@ else:
 
 # COMMAND ----------
 
+## find the dupplicate element in an array 
+
+def findDup(arr):
+  l = []
+  for i in arr:
+    if i in l:
+      return i
+    else: 
+      l.append(i)
