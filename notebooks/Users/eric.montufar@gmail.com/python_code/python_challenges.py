@@ -390,3 +390,20 @@ def findDup(arr):
       return i
     else: 
       l.append(i)
+  return "no dulicates"
+
+# COMMAND ----------
+
+## move all the zeros from an array to the right keeping the order 
+## [0,2,4,5,0,8,0,9]  --> [2,4,5,8,9,0,0,0]
+def moveZero(arr):
+  l = []
+  c = 0
+  for i in arr:
+    if i != 0:
+      l.append(i)
+    else:
+      c+=1
+  for i in range(c):
+    l.append(0)
+  return l
