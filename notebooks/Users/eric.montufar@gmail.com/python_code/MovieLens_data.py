@@ -160,3 +160,4 @@ exploded_movies.write.format("parquet").mode("Overwrite").option("path","s3a://f
 
 # COMMAND ----------
 
+print("hello git")
