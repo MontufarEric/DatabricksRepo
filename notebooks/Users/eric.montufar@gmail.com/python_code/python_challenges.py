@@ -7,6 +7,7 @@
 
 # the time in words problem
 # https://www.hackerrank.com/challenges/the-time-in-words/problem
+#challenges
 
 # COMMAND ----------
 
@@ -17,6 +18,7 @@ import os
 import random
 import re
 import sys
+import numpy as np
 
 # Complete the timeInWords function below.
 def timeInWords(h, m):
