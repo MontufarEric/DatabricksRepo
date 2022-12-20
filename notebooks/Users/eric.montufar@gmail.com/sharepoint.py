@@ -21,5 +21,3 @@ with open('C:/Users/test.mov','wb') as output_file:
     output_file.write(response.content)
     output_file.close()
 
-   
-   .T0sU!G!e5@pvYtYITH3z7kvGoHT.K8s
